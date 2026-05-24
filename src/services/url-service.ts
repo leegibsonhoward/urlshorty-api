@@ -1,6 +1,8 @@
 import { readUrls, writeUrls } from "../storage/storage";
 import { ShortUrl } from "../types/url";
 
+import { nanoid } from "nanoid";
+
 /**
  * Finds a shortened URL by its original URL.
  *
@@ -27,7 +29,7 @@ export function createShortUrl(originalUrl: string): ShortUrl {
   const shortUrl: ShortUrl = {
     id: crypto.randomUUID(),
     originalUrl,
-    shortCode: Math.random().toString(36).slice(2, 8),
+    shortCode: nanoid(7), // Gen short URL-safe, collision-resistant codes.
     visitCount: 0,
     createdAt: new Date().toISOString()
   };
