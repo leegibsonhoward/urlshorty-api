@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 
 import {
   createShortUrl,
+  findByOriginalUrl,
   findByShortCode,
   getAllShortUrls,
   incrementVisitCount
@@ -50,6 +51,14 @@ router.post("/api/urls", (req: Request, res: Response) => {
 
     return;
   }
+
+  const existingUrl = findByOriginalUrl(originalUrl);
+
+  if (existingUrl) {
+    res.status(200).json(existingUrl);
+
+    return;
+}
   
   const shortUrl = createShortUrl(originalUrl);
 

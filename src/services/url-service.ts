@@ -2,6 +2,20 @@ import { readUrls, writeUrls } from "../storage/storage";
 import { ShortUrl } from "../types/url";
 
 /**
+ * Finds a shortened URL by its original URL.
+ *
+ * @param originalUrl - The original URL to search for.
+ * @returns The matching shortened URL, or undefined if none exists.
+ */
+export function findByOriginalUrl(
+  originalUrl: string
+): ShortUrl | undefined {
+  const urls = readUrls();
+
+  return urls.find((url) => url.originalUrl === originalUrl);
+}
+
+/**
  * Creates a new shortened URL record.
  *
  * @param originalUrl - The full URL that should be shortened.
