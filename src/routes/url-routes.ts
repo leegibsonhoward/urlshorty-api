@@ -7,6 +7,20 @@ import {
   incrementVisitCount
 } from "../services/url-service";
 
+
+/**
+ * Defines the expected route parameters for short URL routes.
+ *
+ * Express route params can sometimes be inferred as
+ * string | string[] by TypeScript.
+ *
+ * This explicit type ensures that shortCode
+ * is always treated as a string.
+ */
+type ShortCodeParams = {
+  shortCode: string;
+};
+
 const router = Router();
 
 /**
@@ -45,10 +59,12 @@ router.get("/api/urls", (req: Request, res: Response) => {
 /**
  * Redirects a shortened URL to its original destination.
  */
-router.get("/:shortCode", (req: Request, res: Response) => {
-  const { shortCode } = req.params;
+router.get("/:shortCode", (req: Request<ShortCodeParams>, res: Response) => {
 
-  const shortUrl = findByShortCode(shortCode as string);
+  // const { shortCode } = req.params;
+  const shortCode = req.params.shortCode;
+
+  const shortUrl = findByShortCode(shortCode);
 
   if (!shortUrl) {
     res.status(404).json({
@@ -58,7 +74,7 @@ router.get("/:shortCode", (req: Request, res: Response) => {
     return;
   }
 
-    incrementVisitCount(shortCode as string);
+    incrementVisitCount(shortCode);
 
   res.redirect(shortUrl.originalUrl);
 });
