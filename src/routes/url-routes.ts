@@ -7,6 +7,7 @@ import {
   incrementVisitCount
 } from "../services/url-service";
 
+import { isValidUrl } from "../utils/validate-url";
 
 /**
  * Defines the expected route parameters for short URL routes.
@@ -42,6 +43,14 @@ router.post("/api/urls", (req: Request, res: Response) => {
     return;
   }
 
+  if (!isValidUrl(originalUrl)) {
+    res.status(400).json({
+      error: "Invalid URL format"
+    });
+
+    return;
+  }
+  
   const shortUrl = createShortUrl(originalUrl);
 
   res.status(201).json(shortUrl);
