@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 
 import {
   createShortUrl,
+  deleteShortUrl,
   findByOriginalUrl,
   findByShortCode,
   getAllShortUrls,
@@ -21,6 +22,13 @@ import { isValidUrl } from "../utils/validate-url";
  */
 type ShortCodeParams = {
   shortCode: string;
+};
+
+/**
+ * Defines the expected route parameters for URL ID routes.
+ */
+type UrlIdParams = {
+  id: string;
 };
 
 const router = Router();
@@ -72,6 +80,33 @@ router.get("/api/urls", (req: Request, res: Response) => {
   const urls = getAllShortUrls();
 
   res.status(200).json(urls);
+});
+
+/**
+ * Deletes a shortened URL by ID.
+ */
+router.delete("/api/urls/:id", (req: Request<UrlIdParams>, res: Response) => {
+  const id = req.params.id;
+
+  if (!id) {
+    res.status(400).json({
+      error: "URL ID is required"
+    });
+
+    return;
+  }
+
+  const wasDeleted = deleteShortUrl(id);
+
+  if (!wasDeleted) {
+    res.status(404).json({
+      error: "Short URL not found"
+    });
+
+    return;
+  }
+
+  res.status(204).send();
 });
 
 /**

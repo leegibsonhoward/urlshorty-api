@@ -40,6 +40,26 @@ export function createShortUrl(originalUrl: string): ShortUrl {
 }
 
 /**
+ * Deletes a shortened URL by its unique ID.
+ *
+ * @param id - The unique ID of the shortened URL to delete.
+ * @returns True if a URL was deleted, otherwise false.
+ */
+export function deleteShortUrl(id: string): boolean {
+  const urls = readUrls();
+
+  const filteredUrls = urls.filter((url) => url.id !== id);
+
+  if (filteredUrls.length === urls.length) {
+    return false;
+  }
+
+  writeUrls(filteredUrls);
+
+  return true;
+}
+
+/**
  * Finds a shortened URL by its short code.
  *
  * @param shortCode - The short code used in the shortened URL.
