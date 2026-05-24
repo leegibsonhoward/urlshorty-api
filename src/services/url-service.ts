@@ -1,7 +1,44 @@
-import { readUrls, writeUrls } from "../storage/storage";
+import { nanoid } from "nanoid";
+
+import { db } from "../storage/database";
 import { ShortUrl } from "../types/url";
 
-import { nanoid } from "nanoid";
+/**
+ * Creates a new shortened URL record.
+ *
+ * @param originalUrl - The full URL that should be shortened.
+ * @returns The newly created shortened URL object.
+ */
+export function createShortUrl(originalUrl: string): ShortUrl {
+  const shortUrl: ShortUrl = {
+    id: crypto.randomUUID(),
+    originalUrl,
+    shortCode: nanoid(7),
+    visitCount: 0,
+    createdAt: new Date().toISOString()
+  };
+
+  const statement = db.prepare(`
+    INSERT INTO urls (
+      id,
+      originalUrl,
+      shortCode,
+      visitCount,
+      createdAt
+    )
+    VALUES (?, ?, ?, ?, ?)
+  `);
+
+  statement.run(
+    shortUrl.id,
+    shortUrl.originalUrl,
+    shortUrl.shortCode,
+    shortUrl.visitCount,
+    shortUrl.createdAt
+  );
+
+  return shortUrl;
+}
 
 /**
  * Finds a shortened URL by its original URL.
@@ -12,33 +49,43 @@ import { nanoid } from "nanoid";
 export function findByOriginalUrl(
   originalUrl: string
 ): ShortUrl | undefined {
-  const urls = readUrls();
+  const statement = db.prepare(`
+    SELECT * FROM urls
+    WHERE originalUrl = ?
+  `);
 
-  return urls.find((url) => url.originalUrl === originalUrl);
+  return statement.get(originalUrl) as ShortUrl | undefined;
 }
 
 /**
- * Creates a new shortened URL record.
+ * Finds a shortened URL by its short code.
  *
- * @param originalUrl - The full URL that should be shortened.
- * @returns The newly created shortened URL object.
+ * @param shortCode - The short code used in the shortened URL.
+ * @returns The matching shortened URL, or undefined if none exists.
  */
-export function createShortUrl(originalUrl: string): ShortUrl {
-  const urls = readUrls();
+export function findByShortCode(
+  shortCode: string
+): ShortUrl | undefined {
+  const statement = db.prepare(`
+    SELECT * FROM urls
+    WHERE shortCode = ?
+  `);
 
-  const shortUrl: ShortUrl = {
-    id: crypto.randomUUID(),
-    originalUrl,
-    shortCode: nanoid(7), // Gen short URL-safe, collision-resistant codes.
-    visitCount: 0,
-    createdAt: new Date().toISOString()
-  };
+  return statement.get(shortCode) as ShortUrl | undefined;
+}
 
-  urls.push(shortUrl);
+/**
+ * Returns all stored shortened URLs.
+ *
+ * @returns An array of shortened URL records.
+ */
+export function getAllShortUrls(): ShortUrl[] {
+  const statement = db.prepare(`
+    SELECT * FROM urls
+    ORDER BY createdAt DESC
+  `);
 
-  writeUrls(urls);
-
-  return shortUrl;
+  return statement.all() as ShortUrl[];
 }
 
 /**
@@ -48,38 +95,14 @@ export function createShortUrl(originalUrl: string): ShortUrl {
  * @returns True if a URL was deleted, otherwise false.
  */
 export function deleteShortUrl(id: string): boolean {
-  const urls = readUrls();
+  const statement = db.prepare(`
+    DELETE FROM urls
+    WHERE id = ?
+  `);
 
-  const filteredUrls = urls.filter((url) => url.id !== id);
+  const result = statement.run(id);
 
-  if (filteredUrls.length === urls.length) {
-    return false;
-  }
-
-  writeUrls(filteredUrls);
-
-  return true;
-}
-
-/**
- * Finds a shortened URL by its short code.
- *
- * @param shortCode - The short code used in the shortened URL.
- * @returns The matching shortened URL, or undefined if none exists.
- */
-export function findByShortCode(shortCode: string): ShortUrl | undefined {
-  const urls = readUrls();
-
-  return urls.find((url) => url.shortCode === shortCode);
-}
-
-/**
- * Returns all stored shortened URLs.
- *
- * @returns An array of shortened URL records.
- */
-export function getAllShortUrls(): ShortUrl[] {
-  return readUrls();
+  return result.changes > 0;
 }
 
 /**
@@ -88,15 +111,11 @@ export function getAllShortUrls(): ShortUrl[] {
  * @param shortCode - The short code to update.
  */
 export function incrementVisitCount(shortCode: string): void {
-  const urls = readUrls();
+  const statement = db.prepare(`
+    UPDATE urls
+    SET visitCount = visitCount + 1
+    WHERE shortCode = ?
+  `);
 
-  const shortUrl = urls.find((url) => url.shortCode === shortCode);
-
-  if (!shortUrl) {
-    return;
-  }
-
-  shortUrl.visitCount += 1;
-
-  writeUrls(urls);
+  statement.run(shortCode);
 }
