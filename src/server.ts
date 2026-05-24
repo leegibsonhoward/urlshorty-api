@@ -2,6 +2,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express, { Request, Response } from "express";
 
+import urlRoutes from "./routes/url-routes";
+
 dotenv.config();
 
 const app = express();
@@ -27,6 +29,8 @@ function healthCheck(req: Request, res: Response): void {
 }
 
 app.get("/api/health", healthCheck);
+
+app.use(urlRoutes);
 
 app.listen(PORT, () => {
   console.log(`UrlShorty API running on port ${PORT}`);
