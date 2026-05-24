@@ -18,6 +18,24 @@ app.use(express.json());
 initializeDatabase();
 
 /**
+ * Handles the root API route.
+ *
+ * Provides basic information about the API service.
+ *
+ * @param req - The incoming Express request object.
+ * @param res - The outgoing Express response object.
+ */
+function rootRoute(req: Request, res: Response): void {
+  res.status(200).json({
+    name: "UrlShorty API",
+    description:
+      "A lightweight URL shortener API built with Express and TypeScript.",
+    github: "https://github.com/YOUR_USERNAME/urlshorty-api",
+    health: "/api/health"
+  });
+}
+
+/**
  * Handles the health check route.
  *
  * This route confirms that the API server is running.
@@ -32,6 +50,7 @@ function healthCheck(req: Request, res: Response): void {
   });
 }
 
+app.get("/", rootRoute);
 app.get("/api/health", healthCheck);
 
 app.use(urlRoutes);
