@@ -2,6 +2,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express, { Request, Response } from "express";
 
+import { initializeDatabase } from "./storage/database";
+
 import urlRoutes from "./routes/url-routes";
 
 dotenv.config();
@@ -12,6 +14,8 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
+
+initializeDatabase();
 
 /**
  * Handles the health check route.
