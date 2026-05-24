@@ -6,7 +6,7 @@ import { ShortUrl } from "../types/url";
 /**
  * Absolute path to the JSON storage file.
  */
-const FILE_PATH = path.join(__dirname, "../data/urls.json");
+const FILE_PATH = path.join(process.cwd(), "data", "urls.json");
 
 /**
  * Reads all stored URLs from the JSON file.
