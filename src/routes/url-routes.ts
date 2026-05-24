@@ -1,5 +1,7 @@
 import { Router, Request, Response } from "express";
 
+import { buildShortUrl } from "../utils/build-short-url";
+
 import {
   createShortUrl,
   deleteShortUrl,
@@ -63,14 +65,21 @@ router.post("/api/urls", (req: Request, res: Response) => {
   const existingUrl = findByOriginalUrl(originalUrl);
 
   if (existingUrl) {
-    res.status(200).json(existingUrl);
+    res.status(200).json({
+      ...existingUrl,
+      shortUrl: buildShortUrl(existingUrl.shortCode)
+    });
 
     return;
 }
   
   const shortUrl = createShortUrl(originalUrl);
 
-  res.status(201).json(shortUrl);
+  res.status(201).json({
+    ...shortUrl,
+    shortUrl: buildShortUrl(shortUrl.shortCode)
+  });
+  
 });
 
 /**
@@ -79,7 +88,12 @@ router.post("/api/urls", (req: Request, res: Response) => {
 router.get("/api/urls", (req: Request, res: Response) => {
   const urls = getAllShortUrls();
 
-  res.status(200).json(urls);
+  res.status(200).json(
+  urls.map((url) => ({
+    ...url,
+    shortUrl: buildShortUrl(url.shortCode)
+  }))
+);
 });
 
 /**
