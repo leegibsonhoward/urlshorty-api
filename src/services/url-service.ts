@@ -1,12 +1,5 @@
+import { readUrls, writeUrls } from "../storage/storage";
 import { ShortUrl } from "../types/url";
-
-/**
- * Temporary in-memory storage for shortened URLs.
- *
- * This will reset every time the server restarts.
- * Later, we will replace this with JSON file storage.
- */
-const urls: ShortUrl[] = [];
 
 /**
  * Creates a new shortened URL record.
@@ -15,6 +8,8 @@ const urls: ShortUrl[] = [];
  * @returns The newly created shortened URL object.
  */
 export function createShortUrl(originalUrl: string): ShortUrl {
+  const urls = readUrls();
+
   const shortUrl: ShortUrl = {
     id: crypto.randomUUID(),
     originalUrl,
@@ -24,6 +19,8 @@ export function createShortUrl(originalUrl: string): ShortUrl {
   };
 
   urls.push(shortUrl);
+
+  writeUrls(urls);
 
   return shortUrl;
 }
@@ -35,14 +32,35 @@ export function createShortUrl(originalUrl: string): ShortUrl {
  * @returns The matching shortened URL, or undefined if none exists.
  */
 export function findByShortCode(shortCode: string): ShortUrl | undefined {
+  const urls = readUrls();
+
   return urls.find((url) => url.shortCode === shortCode);
 }
 
 /**
- * Returns all shortened URLs currently stored in memory.
+ * Returns all stored shortened URLs.
  *
  * @returns An array of shortened URL records.
  */
 export function getAllShortUrls(): ShortUrl[] {
-  return urls;
+  return readUrls();
+}
+
+/**
+ * Increments the visit count for a shortened URL.
+ *
+ * @param shortCode - The short code to update.
+ */
+export function incrementVisitCount(shortCode: string): void {
+  const urls = readUrls();
+
+  const shortUrl = urls.find((url) => url.shortCode === shortCode);
+
+  if (!shortUrl) {
+    return;
+  }
+
+  shortUrl.visitCount += 1;
+
+  writeUrls(urls);
 }

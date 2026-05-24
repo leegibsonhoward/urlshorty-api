@@ -3,7 +3,8 @@ import { Router, Request, Response } from "express";
 import {
   createShortUrl,
   findByShortCode,
-  getAllShortUrls
+  getAllShortUrls,
+  incrementVisitCount
 } from "../services/url-service";
 
 const router = Router();
@@ -57,7 +58,7 @@ router.get("/:shortCode", (req: Request, res: Response) => {
     return;
   }
 
-  shortUrl.visitCount += 1;
+    incrementVisitCount(shortCode as string);
 
   res.redirect(shortUrl.originalUrl);
 });
