@@ -12,7 +12,7 @@ UrlShorty allows users to create shortened URLs, redirect short links, manage st
 - ↪️ Redirect short URLs
 - 📋 List stored URLs
 - 🗑 Delete shortened URLs
-- 💾 Persistent JSON storage
+- 💾 Persistent SQLite storage
 - ✅ URL validation
 - ♻️ Duplicate URL prevention
 - ⚡ Lightweight and modular architecture
@@ -33,7 +33,12 @@ UrlShorty allows users to create shortened URLs, redirect short links, manage st
 ```txt
 urlshorty-api/
 ├─ data/
-│  └─ urls.json
+│  └─ urlshorty.db
+│
+├─ requests/
+│  ├─ environments/
+│  ├─ opencollection.yml
+│  └─ ...
 │
 ├─ src/
 │  ├─ routes/
@@ -48,7 +53,6 @@ urlshorty-api/
 ├─ tsconfig.json
 └─ README.md
 ```
-
 ---
 
 # ⚙️ Installation
@@ -107,9 +111,84 @@ npm start
 
 ---
 
+---
+
+# 🧪 API Requests
+
+This project includes a Bruno API collection located in:
+
+```txt
+requests/
+```
+
+The collection contains example requests for testing the API locally or against the deployed production service.
+
+## Environments
+
+Two collection environments are included:
+
+| Environment | Base URL |
+|-------------|----------|
+| local | `http://localhost:3000` |
+| production | `https://urlshorty-api.onrender.com` |
+
+Switching environments allows the same requests to be used against either instance without modifying URLs.
+
+## Included Requests
+
+- Root
+- Health Check
+- Create URL
+- Get URLs
+- Delete URL
+- Redirect
+
+All requests use:
+
+```txt
+{{baseUrl}}
+```
+
+so they automatically target the selected environment.
+
+## Using Bruno
+
+1. Install Bruno.
+2. Open the collection located in:
+
+```txt
+requests/
+```
+
+3. Select either the `local` or `production` environment.
+4. Execute requests directly from the collection.
+
+This allows the API to be tested without modifying request URLs or maintaining separate collections.
+
+---
+
+---
+
 # 📡 API Endpoints
 
 ---
+
+## 🏠 Root
+
+### GET `/`
+
+Returns basic information about the API.
+
+### Example Response
+
+```json
+{
+  "name": "UrlShorty API",
+  "description": "A lightweight URL shortener API built with Express and TypeScript.",
+  "github": "https://github.com/YOUR_USERNAME/urlshorty-api",
+  "health": "/api/health"
+}
+```
 
 ## ❤️ Health Check
 
@@ -128,7 +207,7 @@ Checks whether the API server is running.
 
 ---
 
-## 🔗 Create Short URL
+## 🔗 Create URL
 
 ### POST `/api/urls`
 
@@ -157,7 +236,7 @@ Creates a shortened URL.
 
 ---
 
-## 📋 Get All URLs
+## 📋 Get URLs
 
 ### GET `/api/urls`
 
@@ -165,7 +244,7 @@ Returns all stored shortened URLs.
 
 ---
 
-## 🗑 Delete Short URL
+## 🗑 Delete URL
 
 ### DELETE `/api/urls/:id`
 
@@ -173,7 +252,7 @@ Deletes a shortened URL by ID.
 
 ---
 
-## ↪️ Redirect Short URL
+## ↪️ Redirect
 
 ### GET `/:shortCode`
 
@@ -211,7 +290,7 @@ The goal is to keep the codebase:
 
 # 🛣 Future Improvements
 
-- SQLite or PostgreSQL support
+- PostgreSQL support
 - Custom short codes
 - Analytics tracking
 - Frontend dashboard
