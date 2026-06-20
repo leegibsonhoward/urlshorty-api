@@ -1,10 +1,29 @@
 import Database from "better-sqlite3";
+import fs from "node:fs";
 import path from "node:path";
 
 /**
+ * Absolute path to the data directory.
+ */
+const DATA_DIR = path.join(process.cwd(), "data");
+
+/**
+ * 
+/**
  * Absolute path to the SQLite database file.
  */
-const DATABASE_PATH = path.join(process.cwd(), "data", "urlshorty.db");
+const DATABASE_PATH = path.join(DATA_DIR, "urlshorty.db");
+
+/**
+ * Ensures the data directory exists before opening SQLite.
+ */
+function ensureDataDirectory(): void {
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+  }
+}
+
+ensureDataDirectory();
 
 /**
  * Shared SQLite database connection.
